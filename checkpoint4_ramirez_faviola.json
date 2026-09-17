@@ -1,0 +1,539 @@
+{
+  "name": "Checkpoint1_Faviola_Ramirez.json",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -672,
+        -48
+      ],
+      "id": "6b4296d2-e265-4629-b2cc-1a547a5bb087",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NQ24TeKxna1sn5kC",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1e4b4ee3-a45a-4990-b150-7b088239ee47",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "Out of Office",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "c5b02b2d-7e7e-4e80-97ab-5088c8d59b69",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "Auto-reply",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "9d282e76-b3f1-445a-b38b-349029c6ecf5",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "Automatic repl",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "5fa971ce-518e-4ba8-a10b-e331c1c0ea76",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": " no-reply",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "a197aa79-9345-48da-9832-25e28e9eb8c7",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "Fuera de oficina",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "8407f7f3-a6c6-47c1-aa43-708cc6d94264",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "Respuesta automática",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "519254e1-1624-4566-b085-f4b1c7d41489",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "Ausente",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "1d45201a-b17a-45b9-960a-86906871e170",
+              "leftValue": "={{ $json.subject }}",
+              "rightValue": "No responder",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -448,
+        -48
+      ],
+      "id": "2160012c-887e-48d0-bc40-6cb4fcee3e19",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Asunto: {{ $json.subject }}\nCuerpo: {{ $json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "ROL\nEres el Asistente de Recepción de la Gerencia Contable de la matriz, que paga gastos propios y de sus empresas filiales. Recibes correos con solicitudes de pago a proveedores y extraes sus datos de forma ordenada.\n\nOBJETIVO\nDe cada correo, extrae estos campos:\n- Proveedor (a nombre de quién se paga, empresa externa)\n- Filial (la empresa del grupo cuyo gasto se está pagando: matriz o filial)\n- Sucursal (la que gestiona la solicitud)\n- Solicitado_Por (quién envía la solicitud)\n- Concepto (motivo del pago)\n- Monto (solo números, sin símbolos)\n- Fecha\n\nREGLAS\n- Si un dato no viene en el correo, escribe \"N/D\". No lo inventes.\n- El monto siempre en números, sin símbolos de moneda.\n- No confundas \"Filial\" (empresa del grupo) con \"Proveedor\" (externo).\n- Piensa paso a paso antes de responder."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -224,
+        -144
+      ],
+      "id": "c52fca47-332f-4379-8305-c581bb0777dc",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -224,
+        32
+      ],
+      "id": "e95d036a-0715-4de3-9837-154db9e3e53a",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "nhznyxA57ikdM0IK",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1DgaeX5HAvcAo5Cw6sPq5-6lRQobxRBiMlwOtn-y6xsQ",
+          "mode": "list",
+          "cachedResultName": "Control de pagos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DgaeX5HAvcAo5Cw6sPq5-6lRQobxRBiMlwOtn-y6xsQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1323776928,
+          "mode": "list",
+          "cachedResultName": "Solicitudes",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DgaeX5HAvcAo5Cw6sPq5-6lRQobxRBiMlwOtn-y6xsQ/edit#gid=1323776928"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $json.output.Fecha }}",
+            "Filial": "={{ $json.output.Filial }}",
+            "Proveedor": "={{ $json.output.Proveedor }}",
+            "Sucursal": "={{ $json.output.Sucursal }}",
+            "Solicitado Por": "={{ $json.output.Solicitado_Por }}",
+            "Concepto": "={{ $json.output.Concepto }}",
+            "Monto": "={{ $json.output.Monto }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Filial",
+              "displayName": "Filial",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Proveedor",
+              "displayName": "Proveedor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sucursal",
+              "displayName": "Sucursal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Solicitado Por",
+              "displayName": "Solicitado Por",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Concepto",
+              "displayName": "Concepto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Monto",
+              "displayName": "Monto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resultado HubSpot",
+              "displayName": "Resultado HubSpot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        96,
+        -144
+      ],
+      "id": "411c47fe-62f1-416a-96de-67a829ffc13c",
+      "name": "Registro solicitudes",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "N15hg38cm97bsEI7",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "appToken",
+        "operation": "search",
+        "returnAll": true,
+        "filterGroupsUi": {
+          "filterGroupsValues": [
+            {
+              "filtersUi": {
+                "filterValues": [
+                  {
+                    "propertyName": "company|string",
+                    "operator": "CONTAINS_TOKEN",
+                    "value": "={{ $('AI Agent').item.json.output.Proveedor.split(',')[0] }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        272,
+        -144
+      ],
+      "id": "c219ae02-b16f-4cfe-8704-08b2af62a9ed",
+      "name": "Catalogo proveedores",
+      "alwaysOutputData": true,
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "2bI9x957X6lyJkzK",
+          "name": "HubSpot Service Key account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "Solicitud de pago — Proveedor VERIFICADO",
+        "message": "   Solicitud de pago recibida y registrada.\n\n   RESULTADO DE VALIDACIONES:\n   ✅ HubSpot: Proveedor ENCONTRADO en la cartera autorizada.\n\n   DATOS DE LA SOLICITUD:\n   - Proveedor: {{ $('AI Agent').item.json.output.Proveedor }}\n   - Filial: {{ $('AI Agent').item.json.output.Filial }}\n   - Monto: {{ $('AI Agent').item.json.output.Monto }}\n   - Concepto: {{ $('AI Agent').item.json.output.Concepto }}\n\n   Pendientes de validación en próximos módulos (facturas, SAT, histórico).\n   Decisión final de autorización: a cargo de la Gerencia Contable.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        -224
+      ],
+      "id": "7ff49bec-1cb8-400c-95f8-106420daf54c",
+      "name": "Proveedor existente",
+      "webhookId": "e2f90116-a440-4632-b9c1-008757ae6737",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NQ24TeKxna1sn5kC",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "⚠️ ALERTA: Solicitud de pago — Proveedor NO registrado",
+        "message": "   ⚠️ ATENCIÓN: Solicitud de pago a un proveedor que NO está en la cartera.     \nRESULTADO DE VALIDACIONES:    ❌ HubSpot: Proveedor NO ENCONTRADO en la cartera autorizada. \nREQUIERE REVISIÓN HUMANA.     \nDATOS DE LA SOLICITUD:    - Proveedor: {{ $('AI Agent').item.json.output.Proveedor }}    - Filial: {{ $('AI Agent').item.json.output.Filial }}    - Monto: {{ $('AI Agent').item.json.output.Monto }}    - Concepto: {{ $('AI Agent').item.json.output.Concepto }}     Acción sugerida: verificar el alta del proveedor antes de proceder.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        -48
+      ],
+      "id": "23f170bd-9435-4fcf-8892-ede0e3f04700",
+      "name": "Proveedor no existente",
+      "webhookId": "a948d310-586a-4c7f-a72e-b41b2995bb29",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NQ24TeKxna1sn5kC",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0cbbff6e-e255-4df1-bf44-090f0ae2c1b1",
+              "leftValue": "={{ $json.properties.company }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        432,
+        -144
+      ],
+      "id": "256697f1-98ca-4c3c-94ff-f57ae6efd22c",
+      "name": "Resultado HubSpot"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"Proveedor\": \"Logística Bajío del Centro, S.A. de C.V.\",\n  \"Filial\": \"Residencial Nova\",\n  \"Sucursal\": \"Querétaro\",\n  \"Solicitado_Por\": \"Cecilia Rosales\",\n  \"Concepto\": \"servicio de transporte de andamios\",\n  \"Monto\": \"45000\",\n  \"Fecha\": \"16/09/2026\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -64,
+        64
+      ],
+      "id": "8735d4b2-a064-4f30-8b48-e7d8e2f09973",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Registro solicitudes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registro solicitudes": {
+      "main": [
+        [
+          {
+            "node": "Catalogo proveedores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Catalogo proveedores": {
+      "main": [
+        [
+          {
+            "node": "Resultado HubSpot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resultado HubSpot": {
+      "main": [
+        [
+          {
+            "node": "Proveedor existente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Proveedor no existente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "cf3cc659-8c78-4653-ae00-0aaefae4b1c5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca4bb1c7fc786f0383cdbe26dfe2374148b74a53150e0d6055c02840eeb6717f"
+  },
+  "nodeGroups": [],
+  "id": "4BfYIS3gDvn4hoDi",
+  "tags": []
+}
